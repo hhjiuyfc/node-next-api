@@ -1,0 +1,51 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+
+model User  {
+  // @idは一つのフィールドの値をそのまま主キーにしたいときに使う属性です
+  id Int @id @default(autoincrement())
+  username String
+  email String @unique
+  password String
+  posts Post[]
+  profile Profile?
+}
+
+
+model Post {
+  // 例えば、@default(autoincrement())でIDフィールドが自動的にインクリメントされるように設定できる
+  id Int @id @default(autoincrement())
+  content String
+  createdAt DateTime @default(now())
+  authorId Int
+
+// 1Userあたり複数のPostを持つことになるため、
+// Userモデル側のリレーションは posts Post[] として配列の型で定義します
+  author User @relation( fields: [authorId], references: [id])
+
+}
+
+
+
+
+model Profile {
+  id Int @id @default(autoincrement())
+  bio String?
+  profileImageUrl  String?
+  userId Int @unique
+  user User @relation(fields: [userId], references: [id])
+
+}
